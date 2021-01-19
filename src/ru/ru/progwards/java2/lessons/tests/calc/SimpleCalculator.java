@@ -29,7 +29,7 @@ public class SimpleCalculator {
         return val1 * val2;
     }
 
-    public static int div(int val1, int val2) {
+    public static int div(int val1, int val2) {//
         long result = (long) val1 / val2;
         if (checkMaxOrMin(result))
             throw new ArithmeticException();
