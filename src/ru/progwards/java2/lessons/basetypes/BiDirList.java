@@ -172,4 +172,5 @@ public class BiDirList<T> implements Iterable<T> {
             }
         };
     }
+    public static void main(String[] args) throws Exception {
     }
