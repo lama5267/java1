@@ -1,6 +1,6 @@
 /**
  * Пакет для исследования Javadoc.
- * Содержит абстрактный класс Animal и его потомок класс Cow.
+ * Содержит три класса AvlTree. TreeException и  класс AVLIterator.
  * Для документирования информации о пакете требуется файл package-info.java.
  */
-package progwards.javadoc;
+package progwards.java2.lessons.annotation;
