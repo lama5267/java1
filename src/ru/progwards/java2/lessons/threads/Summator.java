@@ -4,61 +4,62 @@ package progwards.java2.lessons.threads;
 import java.math.BigInteger;
 
 public class Summator {
+    int count;
+    static BigInteger sumItog = BigInteger.ZERO;   //общая сумма
 
-    static class MyThread extends Thread{
-int n;
-int s;
-int m;
+    Summator(int count) {
+        this.count = count;
+    }
 
-        public MyThread(int n,int m) {
-            this.n = n;
-            this.m = m;
-            this.s = 0;
+    static synchronized void increase (BigInteger threadSum) {
+        sumItog = sumItog.add(threadSum);
+    }
+
+    public BigInteger sum(BigInteger number) {
+        Thread [] threads = new Thread[count];
+        // количество целых частей разбиения по потокам
+        BigInteger diapazon = number.divide(BigInteger.valueOf(count));
+        BigInteger end = BigInteger.ZERO;
+        for (int i = 0; i< count; i++) {
+            // добавляем единицу для рвномерности
+            BigInteger start = end.add(BigInteger.ONE);
+            if (i==count-1)
+                end = number;
+            else
+                end = start.add(diapazon);
+            BigInteger finalEnd = end;
+            threads[i] = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    BigInteger threadSum = BigInteger.ZERO;   // сумма в потоке
+                    BigInteger current = start;               // текущее число для суммирования
+                    // пока не прошли весь диапазон потока - суммируем числа
+                    while (!current.equals(finalEnd.add(BigInteger.ONE))) {
+                        threadSum = threadSum.add(current);
+                        current = current.add(BigInteger.ONE);
+                    }
+                    increase(threadSum);    // передаем число в общую сумму
+                }
+            });
         }
-
-
-        @Override
-        public void run() {
-            for (int i = n;i<=m;i++){
-                s = s + i;
+        // запуск всех потоков
+        for (int i = 0; i< count; i++) {
+            threads[i].start();
+        }
+        // проверка все ли потоки выполнились
+        for (int i = 0; i< count; i++) {
+            try {
+                threads[i].join();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
-    }
-    int count;
-    MyThread[] threads;
-
-    public  Summator(int count) {
-        this.count = count;
-        threads = new MyThread[count];
-    }
-    public BigInteger sum(BigInteger number){
-BigInteger c = new BigInteger(String.valueOf(count));
-BigInteger d = number.divide(c);
-BigInteger mod = number.mod(c);
-BigInteger n = BigInteger.ONE;
-BigInteger m = d;
-for (int i = 0;i<count - 1;i++){
-    threads[i] = new MyThread(n.intValue(),m.intValue());
-    threads[i].start();
-    n = n.add(d);
-    m = m.add(d);
-}
-threads[count - 1] =new MyThread(n.intValue(),m.add(mod).intValue());
-threads[count - 1].start();
-BigInteger res = BigInteger.ZERO;
-for (int i = 0;i < count;i++){
-    try {
-        threads[i].join();
-        res = res.add(new BigInteger(String.valueOf(threads[i].s)));
-    } catch (InterruptedException e) {
-        e.printStackTrace();
-    }
-}
-return res;
+        return sumItog;
     }
 
     public static void main(String[] args) {
-        Summator summator = new Summator(2);
-        System.out.println(summator.sum(BigInteger.valueOf(12)));
+        Summator summator = new Summator(3);
+        System.out.println("Threads: " + summator.sum(BigInteger.valueOf(1000)));
+
     }
 }
