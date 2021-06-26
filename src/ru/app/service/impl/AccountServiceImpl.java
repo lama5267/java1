@@ -4,6 +4,9 @@ import app.Store;
 import app.model.Account;
 import app.service.AccountService;
 import app.service.StoreService;
+import progwards.java2.lessons.synchro.InvalidPointerException;
+
+import java.io.IOException;
 
 public class AccountServiceImpl implements AccountService {
     private StoreService service;
@@ -22,11 +25,17 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public void deposit(Account account, double amount) {
+    public void deposit(Account account, double amount)  {
         double sum = account.getAmount() + amount;
         synchronized (Store.getStore()) {
             account.setAmount(sum);
-            service.update(account);
+            try {
+                service.update(account);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -38,7 +47,13 @@ public class AccountServiceImpl implements AccountService {
         }
         synchronized (Store.getStore()) {
             account.setAmount(sum);
-            service.update(account);
+            try {
+                service.update(account);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -51,9 +66,21 @@ public class AccountServiceImpl implements AccountService {
         }
         synchronized (Store.getStore()) {
             from.setAmount(fromSum);
-            service.update(from);
+            try {
+                service.update(from);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidPointerException e) {
+                e.printStackTrace();
+            }
             to.setAmount(toSum);
-            service.update(to);
+            try {
+                service.update(to);
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (InvalidPointerException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
